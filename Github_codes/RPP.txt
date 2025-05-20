@@ -1,0 +1,30 @@
+model { 
+ for(i in 1:N) {   
+   Crashes[i] ~ dpois(mu[i])
+
+   log(mu[i]) <- b[1] + b[2] * Major_AADT[i] + b[3] *Minor_AADT[i] + 
+				   b[4] * legs_4_0[i] + b[5] * Major_lane[i] + b[6] * Minor_surf[i] + 
+				   b[7] * Car[i] + a[i, 1]* Vegetation[i] + a[i, 2] * Terrain[i] + 
+                       b[8] * P_Over65[i]
+
+   squared_error[i] <- pow(Crashes[i] - mu[i], 2) 
+   absolute_error[i] <- abs(Crashes[i] - mu[i])
+   # sq_total[i] <- pow(Crashes[i] - mean(Crashes[]), 2)
+   # sq_resid[i] <- pow(Crashes[i] - mu[i], 2)
+   log_lik[i] <- Crashes[i]*log(mu[i]) - mu[i] - logfact(Crashes[i])
+    }
+ MAE <- sum(absolute_error[]) / N
+ MSE <- sum(squared_error[]) / N
+ # SST <- sum(sq_total[])  
+ # SSR <- sum(sq_resid[])
+ # R2 <- 1 - SSR / SST
+
+for (j in 1:2) { 
+    for ( i in 1:N) {
+       a[i,j] ~ dnorm(am[j],as[j]) } }
+ for (j in 1: 8) {b[j] ~ dnorm(0,0.01)}
+ for (j in 1: 2) {am[j] ~ dnorm(0,0.01)}
+ for (j in 1: 2) {
+   as[j] <-  pow(SD[j], -2)
+   SD[j] ~ dunif(0,5)}
+}
